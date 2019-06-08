@@ -2,6 +2,21 @@ var ObjectID = require('mongodb').ObjectID;
 
 module.exports = (app, db) => {
 
+  /**
+   * Get all workouts (all documents in workout collection)
+   */
+  app.get('/workouts', (req, res) => {
+
+    console.log("get all workouts");
+
+    db.collection('workouts').find({}).toArray((err, workouts) => {
+      if(err) {
+        res.send({ 'error': 'Error in retrieving all workouts: ' + err})
+      } else {
+        res.send(workouts);
+      }
+    });
+  });
 
   /**
    * Get workout by id
@@ -12,8 +27,6 @@ module.exports = (app, db) => {
 
     console.log('get workout by id called with id: ' + id);
 
-    console.log(typeof id);
-
     const idObject = { '_id': new ObjectID(id) };
 
     db.collection('workouts').findOne(idObject, (err, workout) => {
@@ -21,7 +34,7 @@ module.exports = (app, db) => {
         res.send({ 'error': 'Error in retrieving object with id: ' + id });
       } else {
         // send back newly created object
-        console.log('workout found:', workout);
+        console.log('workout found at time:', new Date(), workout);
         res.send(workout);
       }
     });
@@ -36,6 +49,10 @@ module.exports = (app, db) => {
       text: req.body.body,
       title: req.body.title
     };
+
+    console.log('creating workout:', req.body);
+
+    console.log('created workout:', workout);
 
     db.collection('workouts').insert(workout, (err, result) => {
       if(err) {
